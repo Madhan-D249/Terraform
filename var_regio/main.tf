@@ -1,107 +1,26 @@
 provider "aws" {
-  region = "ap-south-1"
+  region     = var.region
+  access_key = "*********"
+  secret_key = "******************
 }
-
-resource "aws_vpc" "main" {
-  cidr_block           = "10.0.0.0/24"
-  enable_dns_support   = true
-  enable_dns_hostnames = true
+resource "aws_instance" "example_1" {
+  ami           = var.ami_id
+  instance_type = var.instance_type
+  key_name      = var.key_name
   tags = {
-    Name = "main-vpc"
+    Name = "flipkart"
+  }
+  #attach 20 gb
+  root_block_device {
+    volume_size           = 20
+    volume_type           = "gp3"
+    delete_on_termination = true
   }
 }
-
-resource "aws_internet_gateway" "igw" {
-  vpc_id = aws_vpc.main.id
-  tags = {
-    Name = "main-igw"
-  }
+output "public_ip" {
+  value = aws_instance.example_1.public_ip
+}
+output "private_ip" {
+  value = aws_instance.example_1.private_ip
 }
 
-resource "aws_subnet" "public" {
-  vpc_id                  = aws_vpc.main.id
-  cidr_block              = "10.0.0.0/25"
-  map_public_ip_on_launch = true
-  availability_zone       = "ap-south-1a"
-  tags = {
-    Name = "public-subnet"
-  }
-}
-
-resource "aws_subnet" "private" {
-  vpc_id            = aws_vpc.main.id
-  cidr_block        = "10.0.0.128/25"
-  availability_zone = "ap-south-1a"
-  tags = {
-    Name = "private-subnet"
-  }
-}
-
-resource "aws_eip" "nat" {
-  vpc = true
-  tags = {
-    Name = "nat-eip"
-  }
-}
-
-resource "aws_nat_gateway" "nat" {
-  allocation_id = aws_eip.nat.id
-  subnet_id     = aws_subnet.public.id
-  tags = {
-    Name = "nat-gateway"
-  }
-}
-
-resource "aws_route_table" "public" {
-  vpc_id = aws_vpc.main.id
-  tags = {
-    Name = "public-rtb"
-  }
-}
-
-resource "aws_route" "public_internet_access" {
-  route_table_id         = aws_route_table.public.id
-  destination_cidr_block = "0.0.0.0/0"
-  gateway_id             = aws_internet_gateway.igw.id
-}
-
-resource "aws_route_table_association" "public_subnet" {
-  subnet_id      = aws_subnet.public.id
-  route_table_id = aws_route_table.public.id
-}
-
-resource "aws_route_table" "private" {
-  vpc_id = aws_vpc.main.id
-  tags = {
-    Name = "private-rtb"
-  }
-}
-
-resource "aws_route" "private_nat_access" {
-  route_table_id         = aws_route_table.private.id
-  destination_cidr_block = "0.0.0.0/0"
-  nat_gateway_id         = aws_nat_gateway.nat.id
-}
-
-resource "aws_route_table_association" "private_subnet" {
-  subnet_id      = aws_subnet.private.id
-  route_table_id = aws_route_table.private.id
-}
-
-resource "aws_instance" "app_server" {
-  ami           = "ami-0cda377a1b884a1bc" # Replace with a valid AMI ID
-  instance_type = "t2.micro"
-  subnet_id     = aws_subnet.public.id
-  tags = {
-    Name = "app-server"
-  }
-}
-
-resource "aws_instance" "db_server" {
-  ami           = "ami-0cda377a1b884a1bc" # Replace with a valid AMI ID
-  instance_type = "t2.micro"
-  subnet_id     = aws_subnet.private.id
-  tags = {
-    Name = "db-server"
-  }
-}
