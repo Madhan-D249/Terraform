@@ -109,7 +109,7 @@ resource "aws_instance" "db_server" {
     Name = "db-server"
   }
 }
-
+#cre_time
 #terraform {
   #required_providers {
     #aws = {
