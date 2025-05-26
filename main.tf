@@ -1,19 +1,19 @@
+
 provider "aws" {
-  region     = "ap-south-1"
-  access_key = ""
-  secret_key = ""
+  region     = var.region
+  access_key = "****************"
+  secret_key = "******************************"
 }
-resource "aws_instance" "example_1" {
-  ami           = "ami-03edbe403ec8522ed"
-  instance_type = "t2.micro"
-  key_name      = "maxxy"
+resource "aws_instance" "example_1"{
+  ami           = var.ami_id # Replace with a valid AMI ID
+  instance_type = var.instance_type
+  key_name      = var.key_name
   tags = {
-    Name = "maxxyserver"
+    Name = "app-server"
   }
   security_groups = [aws_security_group.example_sg.name]
   user_data       = file("sample.sh")
 }
-
 resource "aws_security_group" "example_sg" {
   tags = {
     Name = "securityexample"
@@ -30,7 +30,7 @@ resource "aws_security_group" "example_sg" {
     from_port   = 0
     to_port     = 0
     protocol    = "-1"
-    cidr_blocks = ["0.0.0.0/0"]
+    cidr_blocks = ["0.0.0.0/0"]0
   }
   egress {
     from_port   = 0
@@ -45,3 +45,4 @@ output "public_ip" {
 output "private_ip" {
   value = aws_instance.example_1.private_ip
 }
+
