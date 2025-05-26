@@ -1,8 +1,8 @@
 
 provider "aws" {
   region     = var.region
-  access_key = "****************"
-  secret_key = "******************************"
+  access_key = var.access_key
+  secret_key = var.secret_key
 }
 resource "aws_instance" "example_1"{
   ami           = var.ami_id # Replace with a valid AMI ID
