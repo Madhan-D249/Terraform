@@ -1,0 +1,7 @@
+region           = "ap-south-1"
+access_key       = "******************"
+secret_key       = "******************************"
+ami_id           = "ami-018046b953a698135"
+instance_type    = "t2.micro"
+key_name         = "maxxy"
+sg_id            = "sg-0ba83c2b72d92ad8a"
